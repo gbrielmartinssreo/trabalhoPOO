@@ -1,37 +1,40 @@
-import { EntityRepository, Repository } from 'typeorm';
-import { Game } from './Game';
-import { GameStoreRepository } from './GameStoreRepository';
+import { Repository } from "typeorm";
+import {database} from "../data-source";
+import { Game } from "../entity/Game";
 
-@EntityRepository(Game)
-export class GameRepository extends Repository<Game> {
-    async create(c: Game): Promise<Game> {
-        return await this.repositorio.save(c);
-    }
+export class GameRepository{
+	private repository:Repository<Game>;
+	
+	constructor(){
+		this.repository=database.getRepository(Game);
+	}
 
-    async findAll(): Promise<Game[]> {
-        return await this.repositorio.find();
-    }
+    	async create(c: Game): Promise<Game> {
+        	return await this.repository.save(c);
+    	}
 
-    async findById(id: number): Promise<Game | undefined> {
-        return await this.repositorio.findOneBy({ id });
-    }
+    	async findAll(): Promise<Game[]> {
+        	return await this.repository.find();
+    	}
 
-    async find(game: Partial<Game>): Promise<Game | null> {
-        return await this.repositorio.findOne({ where: game });
-    }
+    	async findById(id: number): Promise<Game | undefined> {
+        	return await this.repository.findOneBy({ id });
+    	}
 
-    async remove(c: Game): Promise<Game> {
-        return await this.repositorio.remove(c);
-    }
+    	async find(game: Partial<Game>): Promise<Game | null> {
+        	return await this.repository.findOne({ where: game });
+    	}
 
-    async update(id: number, c: Partial<Game>): Promise<void> {
-        await this.repositorio.update(id, c);
-    }
+    	async remove(c: Game): Promise<Game> {
+        	return await this.repository.remove(c);
+    	}
 
-    async deleteGame(gameId: number): Promise<void> {
-        await this.delete(gameId);
+    	async update(id: number, c: Partial<Game>): Promise<void> {
+        	await this.repository.update(id, c);
+    	}
 
-        const gameStoreRepository = getRepository(GameStoreRepository);
-        await gameStoreRepository.delete({ gameId });
-    }
+    	async deleteGame(gameId: number): Promise<void> {
+        	await this.repository.delete(gameId);
+
+    	}
 }

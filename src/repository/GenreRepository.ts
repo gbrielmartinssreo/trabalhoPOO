@@ -1,29 +1,36 @@
-import { EntityRepository, Repository } from 'typeorm';
-import { Genre } from './Genre';
+import { Repository } from "typeorm";
+import {database} from "../data-source";
+import { Genre } from "../entity/Genre";
 
-@EntityRepository(Genre)
-export class GenreRepository extends Repository<Genre> {
-  async create(c: Genre): Promise<Genre> {
-    return await this.repositorio.save(c);
-  }
+export class GenreRepository{
+	private repository:Repository<Genre>;
 
-  async findAll(): Promise<Genre[]> {
-    return await this.repositorio.find();
-  }
+	constructor(){
+		this.repository=database.getRepository(Genre);
+	}
 
-  async findById(id: number): Promise<Genre | undefined> {
-    return await this.repositorio.findOneBy({ id });
-  }
+  	async create(c: Genre): Promise<Genre> {
+    		return await this.repository.save(c);
+  	}
 
-  async find(genre: Partial<Genre>): Promise<Genre | null> {
-    return await this.repositorio.findOne({ where: genre });
-  }
+  	async findAll(): Promise<Genre[]> {
+    		return await this.repository.find();
+  	}
 
-  async remove(c: Genre): Promise<Genre> {
-    return await this.repositorio.remove(c);
-  }
+  	async findById(id: number): Promise<Genre | undefined> {
+    		return await this.repository.findOneBy({ id });
+  	}
 
-  async update(id: number, c: Partial<Genre>): Promise<void> {
-    await this.repositorio.update(id, c);
-  }
+  	async find(genre: Partial<Genre>): Promise<Genre | null> {
+    		return await this.repository.findOne({ where: genre });
+  	}
+
+  	async remove(c: Genre): Promise<Genre> {
+    		return await this.repository.remove(c);
+  	}
+
+  	async update(id: number, c: Partial<Genre>): Promise<void> {
+    		await this.repository.update(id, c);
+  	}
 }
+

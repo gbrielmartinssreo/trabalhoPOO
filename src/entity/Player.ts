@@ -13,16 +13,20 @@ export class Player{
 	@Column()
 	password:string;
 
+	@Column({ type: "decimal", precision: 10, scale: 2, default: 0 })
+  	balance: number;
+
 	@ManyToMany(()=>Game,(game)=>game.player,{
 		cascade:true,
 	})
 	@JoinTable()
 	games:Game[];
 
-	constructor(email?:string,name?:string,password?:string,games?:Game[]){
+	constructor(email?:string,name?:string,password?:string,balance?:number,games?:Game[]){
 		this.email=email;
 		this.name=name;
 		this.password=password;
-		this.games=games;
+		this.balance=balance || 0;
+		this.games=games || [];
 	}
 }

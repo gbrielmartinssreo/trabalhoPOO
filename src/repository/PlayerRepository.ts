@@ -1,29 +1,36 @@
-import { EntityRepository, Repository } from 'typeorm';
-import { Player } from './Player';
+import { Repository } from "typeorm";
+import {database} from "../data-source";
+import { Player } from "../entity/Player";
 
-@EntityRepository(Player)
-export class PlayerRepository extends Repository<Player> {
-  async create(c: Player): Promise<Player> {
-    return await this.repositorio.save(c);
-  }
+export class PlayerRepository{
+	private repository:Repository<Player>;
 
-  async findAll(): Promise<Player[]> {
-    return await this.repositorio.find();
-  }
+	constructor(){
+		this.repository=database.getRepository(Player);
+	}
 
-  async findById(email: string): Promise<Player | undefined> {
-    return await this.repositorio.findOneBy({ email });
-  }
+  	async create(c: Player): Promise<Player> {
+    		return await this.repository.save(c);
+  	}
 
-  async find(player: Partial<Player>): Promise<Player | null> {
-    return await this.repositorio.findOne({ where: player });
-  }
+  	async findAll(): Promise<Player[]> {
+    		return await this.repository.find();
+  	}
 
-  async remove(c: Player): Promise<Player> {
-    return await this.repositorio.remove(c);
-  }
+  	async findById(email: string): Promise<Player | undefined> {
+    		return await this.repository.findOneBy({ email });
+  	}
 
-  async update(email: string, c: Partial<Player>): Promise<void> {
-    await this.repositorio.update({ email }, c);
-  }
+  	async find(player: Partial<Player>): Promise<Player | null> {
+    		return await this.repository.findOne({ where: player });
+  	}
+
+  	async remove(c: Player): Promise<Player> {
+    		return await this.repository.remove(c);
+  	}
+
+  	async update(email: string, c: Partial<Player>): Promise<void> {
+    		await this.repository.update({ email }, c);
+  	}
 }
+
