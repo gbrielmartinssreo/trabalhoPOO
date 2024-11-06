@@ -1,39 +1,48 @@
-import { Loja } from '../entity/Loja';
-import { LojaRepository } from '../repository/LojaRepository';
+import { Store } from '../entity/Store';
+import { StoreRepository } from '../repository/StoreRepository';
 
-export class LojaService {
-    private lojaRepository: LojaRepository;
+export class StoreService {
+  private storeRepository: StoreRepository;
 
-    constructor() {
-        this.lojaRepository = new LojaRepository();
+  constructor() {
+    this.storeRepository = new StoreRepository();
+  }
+
+  async create(store: Store): Promise<Store> {
+    return await this.storeRepository.create(store);
+  }
+
+  async findAll(): Promise<Store[]> {
+    return await this.storeRepository.findAll();
+  }
+
+  async findById(id: number): Promise<Store | undefined> {
+    return await this.storeRepository.findOne(id);
+  }
+
+  async find(store: Partial<Store>): Promise<Store | null> {
+    return await this.storeRepository.find(store);
+  }
+
+  async remover(id: number): Promise<boolean> {
+    try {
+      const store = await this.storeRepository.findOne(id);
+      if (!store) {
+        return false;
+      }
+      await this.storeRepository.remove(store);
+      return true;
+    } catch (error) {
+      console.error('Erro ao excluir loja:', error);
+      return false;
     }
+  }
 
-    async criar(loja: Loja): Promise<Loja> {
-        return await this.lojaRepository.criar(loja);
+  async atualizar(id: number, store: Partial<Loja>): Promise<void> {
+    try {
+      await this.storeRepository.update(id, store);
+    } catch (error) {
+      console.error('Erro ao atualizar loja:', error);
     }
-
-    async listar(): Promise<Loja[]> {
-        return await this.lojaRepository.listar();
-    }
-
-    async obter(id: number): Promise<Loja | undefined> {
-        return await this.lojaRepository.obter(id);
-    }
-
-    async pesquisar(loja: Partial<Loja>): Promise<Loja | null> {
-        return await this.lojaRepository.pesquisar(loja);
-    }
-
-    async remover(id: number): Promise<boolean> {
-        const loja = await this.lojaRepository.obter(id);
-        if (!loja) {
-            return false;
-        }
-        await this.lojaRepository.remover(loja);
-        return true;
-    }
-
-    async atualizar(id: number, loja: Partial<Loja>): Promise<void> {
-        await this.lojaRepository.atualizar(id, loja);
-    }
+  }
 }

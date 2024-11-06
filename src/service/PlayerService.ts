@@ -45,28 +45,35 @@ export class PlayerService {
   }
 
   async buyGame(playerId: string, gameId: number, storeId: number): Promise<boolean> {
-    const player = await this.playerRepository.findOne(playerId);
-    const gameStore = await this.gameStoreRepository.findOne({
-      where: {
-        gameId,
-        storeId,
-      },
-    });
+    try {
+      const player = await this.playerRepository.findOne(playerId);
+      const gameStore = await this.gameStoreRepository.findOne({
+        where: {
+          gameId,
+          storeId,
+        },
+      });
 
-    if (!player || !gameStore) {
+      if (!player || !gameStore) {
+        return false;
+      }
+
+      if (player.games.some((game) => game.id === gameId)) {
+        return false; // Já possui o jogo
+      }
+
+      if (player.balance >= gameStore.price) {
+        // Adiciona o jogo à lista de jogos do jogador
+        player.games.push(await this.gameRepository.findOne(gameId));
+        // Atualiza o saldo do jogador
+        player.balance -= gameStore.price;
+        await this.playerRepository.update(playerId, player);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Erro ao comprar jogo:', error);
       return false;
     }
-
-    if (player.games.some((game) => game.id === gameId)) {
-      return false; 
-    }
-
-    if (player.balance >= gameStore.price) {
-      player.games.push(await this.gameRepository.findOne(gameId));
-      player.balance -= gameStore.price;
-      await this.playerRepository.update(playerId, player);
-      return true;
-    }
-    return false;
   }
 }

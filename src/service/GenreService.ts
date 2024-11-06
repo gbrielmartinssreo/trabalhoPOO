@@ -25,15 +25,24 @@ export class GenreService {
   }
 
   async remove(id: number): Promise<boolean> {
-    const genre = await this.genreRepository.findOne(id);
-    if (!genre) {
+    try {
+      const genre = await this.genreRepository.findOne(id);
+      if (!genre) {
+        return false;
+      }
+      await this.genreRepository.remove(genre);
+      return true;
+    } catch (error) {
+      console.error('Erro ao excluir gênero:', error);
       return false;
     }
-    await this.genreRepository.remove(genre);
-    return true;
   }
 
   async update(id: number, genre: Partial<Genre>): Promise<void> {
-    await this.genreRepository.update(id, genre);
+    try {
+      await this.genreRepository.update(id, genre);
+    } catch (error) {
+      console.error('Erro ao atualizar gênero:', error);
+    }
   }
 }

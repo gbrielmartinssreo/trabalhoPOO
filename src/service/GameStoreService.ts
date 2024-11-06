@@ -25,15 +25,24 @@ export class GameStoreService {
   }
 
   async remove(id: number): Promise<boolean> {
-    const gameStore = await this.gameStoreRepository.findOne(id);
-    if (!gameStore) {
+    try {
+      const gameStore = await this.gameStoreRepository.findOne(id);
+      if (!gameStore) {
+        return false;
+      }
+      await this.gameStoreRepository.remove(gameStore);
+      return true;
+    } catch (error) {
+      console.error('Erro ao excluir relação GameStore:', error);
       return false;
     }
-    await this.gameStoreRepository.remove(gameStore);
-    return true;
   }
 
   async update(id: number, gameStore: Partial<GameStore>): Promise<void> {
-    await this.gameStoreRepository.update(id, gameStore);
+    try {
+      await this.gameStoreRepository.update(id, gameStore);
+    } catch (error) {
+      console.error('Erro ao atualizar relação GameStore:', error);
+    }
   }
 }

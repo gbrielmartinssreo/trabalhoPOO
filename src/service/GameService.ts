@@ -27,15 +27,19 @@ export class GameService {
     return await this.gameRepository.find(game);
   }
 
-  async remove(c: Game): Promise<Game> {
-    return await this.repository.remove(c);
+  async remove(gameId: number): Promise<void> {
+    try {
+      await this.gameRepository.delete(gameId);
+    } catch (error) {
+      console.error('Erro ao excluir jogo:', error);
+    }
   }
 
-  async update(id: number, c: Partial<Game>): Promise<void> {
-    await this.repository.update(id, c);
-  }
-
-  async deleteGame(gameId: number): Promise<void> {
-    await this.gameRepository.delete(gameId);
+  async update(id: number, game: Partial<Game>): Promise<void> {
+    try {
+      await this.gameRepository.update(id, game);
+    } catch (error) {
+      console.error('Erro ao atualizar jogo:', error);
+    }
   }
 }
