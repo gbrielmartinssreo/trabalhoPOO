@@ -3,13 +3,11 @@ import {DataSource} from "typeorm";
 export const database = new DataSource({
     type: "mysql",
     host: "localhost",
-    port: 3306,
+    port: 3000,
     username: "gbmm",
     password: "hunterxhunter",
-    database: "steam",
+    database: "sgdb_gameStore",
     synchronize: true,
-    logging: true,
-    entities: ["./entity/**.ts],
-    subscribers: [],
-    migrations: [],
+    logging: true, 
+    entities: ["./entity/**.ts"],
 })

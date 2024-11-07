@@ -27,17 +27,17 @@ export class GameRepository{
     	}
 
 	//funcao de buscar game com base em poucas informacoes mas qualquer info
-    	async find(game: Partial<Game>): Promise<Game | null> {
+    	async findPartial(game: Partial<Game>): Promise<Game | null> {
         	return await this.repository.findOne({ where: game });
     	}
 
 	//funcao pra remover o registro do game
-    	async remove(c: Game): Promise<Game> {
+    	async delete(c: Game): Promise<Game> {
         	return await this.repository.remove(c);
     	}
 
 	//funcao pra ir atualizar informacoes do game pegando a id pra achar o game e usando as info parciais pra atualizar
-    	async update(id: number, c: Partial<Game>): Promise<void> {
+    	async upd(id: number, c: Partial<Game>): Promise<void> {
         	await this.repository.update(id, c);
     	}
 

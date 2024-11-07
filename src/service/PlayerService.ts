@@ -1,17 +1,17 @@
-import { Player } from '../entity/Player';
-import { PlayerRepository } from '../repository/PlayerRepository';
-import { GameStoreRepository } from '../repository/GameStoreRepository';
-import { GameRepository } from '../repository/GameRepository';
-import { GameStore } from '../entity/GameStore';
+import { PlayerRepository } from "../repository/PlayerRepository";
+import { Player } from "../entity/Player";
+import { GameStoreService } from "./GameStoreService";
+import { Game } from "../entity/Game";
+import { GameRepository } from "../repository/GameRepository";
 
 export class PlayerService {
   private playerRepository: PlayerRepository;
-  private gameStoreRepository: GameStoreRepository;
+  private gameStoreService: GameStoreService;
   private gameRepository: GameRepository;
 
   constructor() {
     this.playerRepository = new PlayerRepository();
-    this.gameStoreRepository = new GameStoreRepository();
+    this.gameStoreService = new GameStoreService();
     this.gameRepository = new GameRepository();
   }
 
@@ -23,38 +23,21 @@ export class PlayerService {
     return await this.playerRepository.findAll();
   }
 
-  async findOne(email: string): Promise<Player | undefined> {
-    return await this.playerRepository.findOne(email);
+  async findById(email: string): Promise<Player | undefined> {
+    return await this.playerRepository.findById(email);
   }
 
-  async find(player: Partial<Player>): Promise<Player | null> {
-    return await this.playerRepository.find(player);
-  }
-
-  async remove(email: string): Promise<boolean> {
-    const player = await this.playerRepository.findOne(email);
-    if (!player) {
-      return false;
-    }
-    await this.playerRepository.remove(player);
-    return true;
-  }
-
-  async update(email: string, player: Partial<Player>): Promise<void> {
-    await this.playerRepository.update(email, player);
+  async findPartial(playerPartial: Partial<Player>): Promise<Player | null> {
+    return await this.playerRepository.findPartial(playerPartial);
   }
 
   async buyGame(playerId: string, gameId: number, storeId: number): Promise<boolean> {
-    try {
-      const player = await this.playerRepository.findOne(playerId);
-      const gameStore = await this.gameStoreRepository.findOne({
-        where: {
-          gameId,
-          storeId,
-        },
-      });
 
-      if (!player || !gameStore) {
+    try {
+      const player = await this.playerRepository.findById(playerId);
+      const gamePrice = await this.gameStoreService.findGamePriceByGameIdAndStoreId(gameId, storeId);
+
+      if (!player || !gamePrice) {
         return false;
       }
 
@@ -62,12 +45,19 @@ export class PlayerService {
         return false; // Já possui o jogo
       }
 
-      if (player.balance >= gameStore.price) {
+      if (player.balance >= gamePrice) {
         // Adiciona o jogo à lista de jogos do jogador
-        player.games.push(await this.gameRepository.findOne(gameId));
+        const game = await this.gameRepository.findById(gameId); // Obtenha o objeto Game
+        if (game) {
+          player.games.push(game);
+        } else {
+          console.error("Jogo não encontrado para adicionar.");
+          return false;
+        }
+
         // Atualiza o saldo do jogador
-        player.balance -= gameStore.price;
-        await this.playerRepository.update(playerId, player);
+        player.balance -= gamePrice;
+        await this.playerRepository.create(player); // Utilize save para atualizar o jogador
         return true;
       }
       return false;

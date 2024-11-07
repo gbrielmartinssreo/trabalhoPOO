@@ -1,5 +1,5 @@
-import { Genre } from '../entity/Genre';
-import { GenreRepository } from '../repository/GenreRepository';
+import { GenreRepository } from "../repository/GenreRepository";
+import { Genre } from "../entity/Genre";
 
 export class GenreService {
   private genreRepository: GenreRepository;
@@ -16,33 +16,19 @@ export class GenreService {
     return await this.genreRepository.findAll();
   }
 
-  async findOne(id: number): Promise<Genre | undefined> {
-    return await this.genreRepository.findOne(id);
+  async findById(id: number): Promise<Genre | undefined> {
+    return await this.genreRepository.findById(id);
   }
 
-  async find(genre: Partial<Genre>): Promise<Genre | null> {
-    return await this.genreRepository.find(genre);
+  async findPartial(genre: Partial<Genre>): Promise<Genre | null> {
+    return await this.genreRepository.findPartial(genre);
   }
 
-  async remove(id: number): Promise<boolean> {
-    try {
-      const genre = await this.genreRepository.findOne(id);
-      if (!genre) {
-        return false;
-      }
-      await this.genreRepository.remove(genre);
-      return true;
-    } catch (error) {
-      console.error('Erro ao excluir gênero:', error);
-      return false;
-    }
+  async delete(genre: Genre): Promise<Genre> {
+    return await this.genreRepository.delete(genre);
   }
 
   async update(id: number, genre: Partial<Genre>): Promise<void> {
-    try {
-      await this.genreRepository.update(id, genre);
-    } catch (error) {
-      console.error('Erro ao atualizar gênero:', error);
-    }
+    await this.genreRepository.upd(id, genre);
   }
 }

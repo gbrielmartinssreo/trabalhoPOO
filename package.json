@@ -17,5 +17,10 @@
   },
   "devDependencies": {
     "@types/node": "^22.9.0"
+  },
+
+  "scripts":{
+    "start":"nodemon ./src/main.ts",
+    "test": "echo \"Error: no test specified\"&& exit 1"
   }
 }

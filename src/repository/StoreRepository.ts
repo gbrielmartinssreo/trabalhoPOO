@@ -27,17 +27,17 @@ export class StoreRepository{
     	}
 
 	//busca o registro com base em info parcial
-    	async find(store: Partial<Store>): Promise<Store | null> {
+    	async findPartial(store: Partial<Store>): Promise<Store | null> {
         	return await this.repository.findOne({ where: store });
     	}
 
 	//remove o registro
-    	async remove(c: Store): Promise<Store> {
+    	async delete(c: Store): Promise<Store> {
         	return await this.repository.remove(c);
     	}
 
 	//atualiza o registro
-    	async update(id: number, c: Partial<Store>): Promise<void> {
+    	async upd(id: number, c: Partial<Store>): Promise<void> {
         	await this.repository.update(id, c);
     	}
 

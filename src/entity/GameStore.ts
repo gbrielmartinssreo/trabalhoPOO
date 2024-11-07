@@ -1,20 +1,20 @@
-import {Entity,PrimaryGeneratedColumn,ManyToOne,Column,JoinColumn} from "typeorm";
-import {Game} from "Game";
-import {Store} from "Store";
+import { Entity, PrimaryGeneratedColumn, ManyToOne, Column, JoinColumn } from "typeorm";
+import { Game } from "./Game";
+import { Store } from "./Store";
 
 @Entity()
 export class GameStore {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Game, (game) => game.store)
-  @JoinColumn({ name: "game_id" })
+  @ManyToOne(() => Game, (game) => game.stores)
+  @JoinColumn()
   game: Game;
 
   @ManyToOne(() => Store, (store) => store.games)
-  @JoinColumn({ name: "store_id" })
+  @JoinColumn()
   store: Store;
 
   @Column({ type: "decimal", precision: 10, scale: 2 })
-  cost: number;
+  price: number;
 }

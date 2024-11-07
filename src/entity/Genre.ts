@@ -1,20 +1,18 @@
-import {Entity,PrimaryGeneratedColumn,Column,ManyToOne} from "typeorm";
-import {Game} from "Game";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
+import { Game } from "./Game";
 
-@Entity
-export class Genre{
+@Entity()
+export class Genre {
+  @PrimaryGeneratedColumn()
+  id: number;
 
-	@PrimaryGeneratedColumn
-	id:number;
+  @Column()
+  name: string;
 
-	@Column
-	name:string;
+  @ManyToOne(() => Game, (game) => game.genres, { nullable: true })
+  game: Game | null;
 
-	@ManyToOne(()=>Game,(game)=>game.genre,{nullable:true})
-	game:Game|null;
-
-
-	constructor(name?:string){
-		this.name=name;
-	}
+  constructor(name?: string) {
+    this.name = name;
+  }
 }

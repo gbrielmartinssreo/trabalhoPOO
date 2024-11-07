@@ -27,17 +27,17 @@ export class GenreRepository{
   	}
 
 	//busca o registro com base em info parcial
-  	async find(genre: Partial<Genre>): Promise<Genre | null> {
+  	async findPartial(genre: Partial<Genre>): Promise<Genre | null> {
     		return await this.repository.findOne({ where: genre });
   	}
 
 	//remove o registro
-  	async remove(c: Genre): Promise<Genre> {
+  	async delete(c: Genre): Promise<Genre> {
     		return await this.repository.remove(c);
   	}
 
 	//atualiza o registro
-  	async update(id: number, c: Partial<Genre>): Promise<void> {
+  	async upd(id: number, c: Partial<Genre>): Promise<void> {
     		await this.repository.update(id, c);
   	}
 }

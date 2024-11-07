@@ -27,17 +27,17 @@ export class PlayerRepository{
   	}
 
 	//encontra o registro do player com base em info parcial
-  	async find(player: Partial<Player>): Promise<Player | null> {
+  	async findPartial(player: Partial<Player>): Promise<Player | null> {
     		return await this.repository.findOne({ where: player });
   	}
 
 	//remove o registro de player
-  	async remove(c: Player): Promise<Player> {
+  	async delete(c: Player): Promise<Player> {
     		return await this.repository.remove(c);
   	}
 
 	//atualiza o registro
-  	async update(email: string, c: Partial<Player>): Promise<void> {
+  	async upd(email: string, c: Partial<Player>): Promise<void> {
     		await this.repository.update({ email }, c);
   	}
 }
