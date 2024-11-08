@@ -1,29 +1,32 @@
 import "reflect-metadata";
-import express from "express";
-import playerRouter from "./route/PlayerRoutes";
+import express from 'express';
 import gameRouter from "./route/GameRoutes";
-import genreRouter from "./route/GenreRoutes";
 import storeRouter from "./route/StoreRoutes";
-import gameStoreRouter from "./route/GameStoreRoutes";
+import licenseRouter from "./route/LicenseRoutes";
+import genreRouter from "./route/GenreRoutes";
+import playerRouter from "./route/PlayerRoutes";
 import { database } from "./data-source";
 
 const minhaAPI = express();
 minhaAPI.use(express.json());
-minhaAPI.use("/players", playerRouter);
-minhaAPI.use("/games", gameRouter);
-minhaAPI.use("/genres", genreRouter);
-minhaAPI.use("/stores", storeRouter);
-minhaAPI.use("/storeGames", gameStoreRouter);
+
+// Configuração das rotas
+minhaAPI.use('/games', gameRouter);
+minhaAPI.use('/stores', storeRouter);
+minhaAPI.use('/licenses', licenseRouter);
+minhaAPI.use('/genres', genreRouter);
+minhaAPI.use('/players', playerRouter);
 
 const porta = 3000;
 
 minhaAPI.listen(porta, async () => {
-  database
-    .initialize()
-    .then(() => {
-      console.log("Conexão com o banco de dados efetuada com sucesso.");
-    })
-    .catch((erro) => console.log(erro));
+    try {
+        await database.initialize();
+        console.log("Conexão com o banco de dados efetuada com sucesso.");
+    } catch (erro) {
+        console.log("Erro ao conectar com o banco de dados:", erro);
+    }
 
-  console.log(`Servidor web rodando na porta ${porta}`);
+    console.log(`Servidor web rodando na porta ${porta}`);
 });
+

@@ -1,5 +1,5 @@
-import { StoreRepository } from "../repository/StoreRepository";
-import { Store } from "../entity/Store";
+import { StoreRepository } from '../repository/StoreRepository';
+import { Store } from '../entity/Store';
 
 export class StoreService {
   private storeRepository: StoreRepository;
@@ -12,23 +12,37 @@ export class StoreService {
     return await this.storeRepository.create(store);
   }
 
-  async findAll(): Promise<Store[]> {
-    return await this.storeRepository.findAll();
+  async list(): Promise<Store[]> {
+    return await this.storeRepository.list();
   }
 
-  async findById(id: number): Promise<Store | undefined> {
-    return await this.storeRepository.findById(id);
+  async obtain(id: number): Promise<Store> {
+    return await this.storeRepository.obtain(id);
   }
 
-  async findPartial(store: Partial<Store>): Promise<Store | null> {
-    return await this.storeRepository.findPartial(store);
+  async research(store: Partial<Store>): Promise<Store | null> {
+    return await this.storeRepository.research(store);
   }
 
-  async delete(store: Store): Promise<Store> {
-    return await this.storeRepository.delete(store);
+  async remove(id: number): Promise<boolean> {
+    try {
+      const store = await this.storeRepository.obtain(id);
+      if (!store) {
+        return false;
+      }
+      await this.storeRepository.remove(store);
+      return true;
+    } catch (error) {
+      console.error("Erro ao remover loja:", error);
+      return false;
+    }
   }
 
   async update(id: number, store: Partial<Store>): Promise<void> {
-    await this.storeRepository.upd(id, store);
+    try {
+      await this.storeRepository.update(id, store);
+    } catch (error) {
+      console.error("Erro ao atualizar loja:", error);
+    }
   }
 }

@@ -1,48 +1,52 @@
 import { Request, Response } from 'express';
 import { GenreService } from '../service/GenreService';
+import { Genre } from '../entity/Genre';
 
 export class GenreController {
-  private genreService: GenreService;
+    private genreService: GenreService;
 
-  constructor() {
-    this.genreService = new GenreService();
-  }
-
-  async create(req: Request, res: Response) {
-    try {
-      const genre = req.body;
-      const createdGenre = await this.genreService.create(genre);
-      res.status(201).json(createdGenre);
-    } catch (error) {
-      console.error('Erro ao criar gênero:', error);
-      res.status(500).json({ message: 'Erro ao criar gênero' });
+    constructor() {
+        this.genreService = new GenreService();
     }
-  }
 
-  async findAll(req: Request, res: Response) {
-    try {
-      const genres = await this.genreService.findAll();
-      res.json(genres);
-    } catch (error) {
-      console.error('Erro ao buscar gêneros:', error);
-      res.status(500).json({ message: 'Erro ao buscar gêneros' });
+    async create(req: Request, res: Response): Promise<Response> {
+        try {
+            const genre: Genre = req.body;
+            const newGenre = await this.genreService.create(genre);
+            return res.status(201).json(newGenre);
+        } catch (error) {
+            return res.status(400).json({ message: 'Error creating genre.', error: error.message });
+        }
     }
-  }
 
-  async findById(req: Request, res: Response) {
-    try {
-      const id = parseInt(req.params.id);
-      const genre = await this.genreService.findById(id);
-      if (genre) {
-        res.json(genre);
-      } else {
-        res.status(404).json({ message: 'Gênero não encontrado' });
-      }
-    } catch (error) {
-      console.error('Erro ao buscar gênero por ID:', error);
-      res.status(500).json({ message: 'Erro ao buscar gênero por ID' });
+    async list(req: Request, res: Response): Promise<Response> {
+        try {
+            const genres = await this.genreService.list();
+            return res.status(200).json(genres);
+        } catch (error) {
+            return res.status(500).json({ message: 'Error listing genres.', error: error.message });
+        }
     }
-  }
 
-  // ... (adicionar métodos para outras operações)
+    async update(req: Request, res: Response): Promise<Response> {
+        try {
+            const id = parseInt(req.params.id);
+            const genre: Partial<Genre> = req.body;
+            await this.genreService.update(id, genre);
+            return res.status(200).json({ message: `Genre with ID ${id} updated successfully.` });
+        } catch (error) {
+            return res.status(400).json({ message: 'Error updating genre.', error: error.message });
+        }
+    }
+
+    async delete(req: Request, res: Response): Promise<Response> {
+        try {
+            const id: number = parseInt(req.params.id);
+            const genre = await this.genreService.remove(id);
+            return res.status(200).json({ message: `Genre with ID ${id} deleted successfully.`, genre });
+        } catch (error) {
+            return res.status(400).json({ message: 'Error deleting genre.', error: error.message });
+        }
+    }
 }
+

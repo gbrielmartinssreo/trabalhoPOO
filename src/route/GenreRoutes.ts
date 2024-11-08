@@ -1,16 +1,13 @@
-import express, { Router, Request, Response } from "express";
-import { GenreController } from "../controller/GenreController";
+import express from 'express';
+import { GenreController } from '../controller/GenreController';
 
-const router: Router = express.Router();
+const genreRouter = express.Router();
 const genreController = new GenreController();
 
-// Rota para criar um novo gênero
-router.post("/", genreController.create);
+genreRouter.get('/', (req, res) => { genreController.list(req, res); });
+genreRouter.post('/', (req, res) => { genreController.create(req, res); });
+genreRouter.put('/:id', (req, res) => { genreController.update(req, res); });
+genreRouter.delete('/:id', (req, res) => { genreController.delete(req, res); });
 
-// Rota para buscar todos os gêneros
-router.get("/", genreController.findAll);
+export default genreRouter;
 
-// Outras rotas para gêneros (se necessário)
-// ...
-
-export default router;

@@ -1,16 +1,13 @@
-import express, { Router, Request, Response } from "express";
-import { GameController } from "../controller/GameController";
+import express from 'express';
+import { GameController } from '../controller/GameController';
 
-const router: Router = express.Router();
+const gameRouter = express.Router();
 const gameController = new GameController();
 
-// Rota para criar um novo jogo
-router.post("/", gameController.create);
+gameRouter.get('/', (req, res) => { gameController.list(req, res); });
+gameRouter.post('/', (req, res) => { gameController.create(req, res); });
+gameRouter.put('/:id', (req, res) => { gameController.update(req, res); });
+gameRouter.delete('/:id', (req, res) => { gameController.delete(req, res); });
 
-// Rota para buscar todos os jogos
-router.get("/", gameController.findAll);
+export default gameRouter;
 
-// Outras rotas para jogos (se necessário)
-// ...
-
-export default router;

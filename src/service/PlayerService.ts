@@ -1,69 +1,142 @@
 import { PlayerRepository } from "../repository/PlayerRepository";
 import { Player } from "../entity/Player";
-import { GameStoreService } from "./GameStoreService";
-import { Game } from "../entity/Game";
 import { GameRepository } from "../repository/GameRepository";
+import { LicenseRepository } from "../repository/LicenseRepository";
+import { License } from "../entity/License";
 
 export class PlayerService {
   private playerRepository: PlayerRepository;
-  private gameStoreService: GameStoreService;
   private gameRepository: GameRepository;
+  private licenseRepository: LicenseRepository;
 
   constructor() {
     this.playerRepository = new PlayerRepository();
-    this.gameStoreService = new GameStoreService();
     this.gameRepository = new GameRepository();
+    this.licenseRepository = new LicenseRepository();
   }
 
   async create(player: Player): Promise<Player> {
     return await this.playerRepository.create(player);
   }
 
-  async findAll(): Promise<Player[]> {
-    return await this.playerRepository.findAll();
+  async list(): Promise<Player[]> {
+    return await this.playerRepository.list();
   }
 
-  async findById(email: string): Promise<Player | undefined> {
-    return await this.playerRepository.findById(email);
+  async obtain(email: string): Promise<Player | undefined> {
+    return await this.playerRepository.obtain(email);
   }
 
-  async findPartial(playerPartial: Partial<Player>): Promise<Player | null> {
-    return await this.playerRepository.findPartial(playerPartial);
+  async research(player: Partial<Player>): Promise<Player | null> {
+    return await this.playerRepository.research(player);
   }
 
-  async buyGame(playerId: string, gameId: number, storeId: number): Promise<boolean> {
-
+  async buyGame(email: string, gameId: number, storeId: number): Promise<boolean> {
     try {
-      const player = await this.playerRepository.findById(playerId);
-      const gamePrice = await this.gameStoreService.findGamePriceByGameIdAndStoreId(gameId, storeId);
+      const player = await this.playerRepository.obtain(email);
+      const game = await this.gameRepository.obtain(gameId);
+      const license = await this.licenseRepository.obtainByGameAndStore(gameId, storeId);
 
-      if (!player || !gamePrice) {
+      if (!player || !game || !license) {
+        console.error("Erro: Player, Game ou License não encontrados.");
         return false;
       }
 
-      if (player.games.some((game) => game.id === gameId)) {
-        return false; // Já possui o jogo
+      if (player.licenses.some((lic) => lic.game.id === gameId)) {
+        console.error("O jogador já possui uma licença para este jogo.");
+        return false;
       }
 
-      if (player.balance >= gamePrice) {
-        // Adiciona o jogo à lista de jogos do jogador
-        const game = await this.gameRepository.findById(gameId); // Obtenha o objeto Game
-        if (game) {
-          player.games.push(game);
-        } else {
-          console.error("Jogo não encontrado para adicionar.");
-          return false;
-        }
-
-        // Atualiza o saldo do jogador
-        player.balance -= gamePrice;
-        await this.playerRepository.create(player); // Utilize save para atualizar o jogador
-        return true;
+      if (player.balance < license.price) {
+        console.error("Saldo insuficiente para comprar a licença.");
+        return false;
       }
-      return false;
+
+      // Adiciona a licença ao jogador e atualiza o saldo
+      player.licenses.push(license);
+      player.balance -= license.price;
+
+      // Remove a licença da loja
+      await this.licenseRepository.remove(license);
+
+      // Atualiza o jogador
+      await this.playerRepository.update(email, player);
+
+      console.log("Compra realizada com sucesso.");
+      return true;
     } catch (error) {
-      console.error('Erro ao comprar jogo:', error);
+      console.error('Erro ao processar a compra:', error);
+      return false;
+    }
+  }
+
+  async addLicenseToPlayer(email: string, licenseId: number): Promise<boolean> {
+    try {
+      const player = await this.playerRepository.obtain(email);
+      const license = await this.licenseRepository.obtain(licenseId);
+
+      if (!player || !license) {
+        console.error("Erro: Player ou License não encontrados.");
+        return false;
+      }
+
+      if (player.licenses.some((lic) => lic.id === licenseId)) {
+        console.error("O jogador já possui esta licença.");
+        return false;
+      }
+
+      player.licenses.push(license);
+      await this.playerRepository.update(email, player);
+
+      console.log("Licença adicionada ao jogador com sucesso.");
+      return true;
+    } catch (error) {
+      console.error("Erro ao adicionar licença:", error);
+      return false;
+    }
+  }
+
+  async removeLicenseFromPlayer(email: string, licenseId: number): Promise<boolean> {
+    try {
+      const player = await this.playerRepository.obtain(email);
+      if (!player) {
+        console.error("Erro: Jogador não encontrado.");
+        return false;
+      }
+
+      const licenseIndex = player.licenses.findIndex((lic) => lic.id === licenseId);
+      if (licenseIndex === -1) {
+        console.error("Licença não encontrada no jogador.");
+        return false;
+      }
+
+      player.licenses.splice(licenseIndex, 1);
+      await this.playerRepository.update(email, player);
+
+      console.log("Licença removida do jogador com sucesso.");
+      return true;
+    } catch (error) {
+      console.error("Erro ao remover licença:", error);
+      return false;
+    }
+  }
+
+  async deletePlayer(email: string): Promise<boolean> {
+    try {
+      const player = await this.playerRepository.obtain(email);
+      if (!player) {
+        console.error("Erro: Jogador não encontrado.");
+        return false;
+      }
+
+      await this.playerRepository.remove(player);
+
+      console.log("Jogador removido com sucesso.");
+      return true;
+    } catch (error) {
+      console.error("Erro ao remover jogador:", error);
       return false;
     }
   }
 }
+

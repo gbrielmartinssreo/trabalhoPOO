@@ -1,5 +1,6 @@
-import { Entity, PrimaryColumn, Column, ManyToMany, JoinTable } from "typeorm";
-import { Game } from "./Game";
+import { Entity, PrimaryColumn, Column, OneToMany } from "typeorm";
+import { License } from "./License";
+
 
 @Entity()
 export class Player {
@@ -15,24 +16,15 @@ export class Player {
   @Column({ type: "decimal", precision: 10, scale: 2, default: 0 })
   balance: number;
 
-  @ManyToMany(() => Game, (game) => game.players, {
-    cascade: true,
-  })
-  @JoinTable()
-  games: Game[];
+  @OneToMany(() => License, (license) => license.player, { cascade: ["remove"] })   
+  licenses: License[];
 
-  constructor(
-    email?: string,
-    name?: string,
-    password?: string,
-    balance?: number,
-    games?: Game[]
-  ) {
+  constructor(email?: string, name?: string, password?: string, balance?: number, licenses?:License[]) {
     this.email = email;
     this.name = name;
     this.password = password;
     this.balance = balance || 0;
-    this.games = games;
+    this.licenses = licenses;
   }
 }
 

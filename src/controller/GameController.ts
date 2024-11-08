@@ -1,48 +1,52 @@
 import { Request, Response } from 'express';
 import { GameService } from '../service/GameService';
+import { Game } from '../entity/Game';
 
 export class GameController {
-  private gameService: GameService;
+    private gameService: GameService;
 
-  constructor() {
-    this.gameService = new GameService();
-  }
-
-  async create(req: Request, res: Response) {
-    try {
-      const game = req.body; // Obter o game do corpo da requisição
-      const createdGame = await this.gameService.create(game);
-      res.status(201).json(createdGame);
-    } catch (error) {
-      console.error('Erro ao criar jogo:', error);
-      res.status(500).json({ message: 'Erro ao criar jogo' });
+    constructor() {
+        this.gameService = new GameService();
     }
-  }
 
-  async findAll(req: Request, res: Response) {
-    try {
-      const games = await this.gameService.findAll();
-      res.json(games);
-    } catch (error) {
-      console.error('Erro ao buscar jogos:', error);
-      res.status(500).json({ message: 'Erro ao buscar jogos' });
+    async create(req: Request, res: Response): Promise<Response> {
+        try {
+            const game: Game = req.body;
+            const newGame = await this.gameService.create(game);
+            return res.status(201).json(newGame);
+        } catch (error) {
+            return res.status(400).json({ message: 'Error creating game.', error: error.message });
+        }
     }
-  }
 
-  async findById(req: Request, res: Response) {
-    try {
-      const id = parseInt(req.params.id); // Obter o ID do parâmetro da URL
-      const game = await this.gameService.findById(id);
-      if (game) {
-        res.json(game);
-      } else {
-        res.status(404).json({ message: 'Jogo não encontrado' });
-      }
-    } catch (error) {
-      console.error('Erro ao buscar jogo por ID:', error);
-      res.status(500).json({ message: 'Erro ao buscar jogo por ID' });
+    async list(req: Request, res: Response): Promise<Response> {
+        try {
+            const games = await this.gameService.list();
+            return res.status(200).json(games);
+        } catch (error) {
+            return res.status(500).json({ message: 'Error listing games.', error: error.message });
+        }
     }
-  }
 
-  // ... (adicionar métodos para outras operações, como findPartial, delete, update, etc.)
+    async update(req: Request, res: Response): Promise<Response> {
+        try {
+            const id = parseInt(req.params.id);
+            const game: Partial<Game> = req.body;
+            await this.gameService.update(id, game);
+            return res.status(200).json({ message: `Game with ID ${id} updated successfully.` });
+        } catch (error) {
+            return res.status(400).json({ message: 'Error updating game.', error: error.message });
+        }
+    }
+
+    async delete(req: Request, res: Response): Promise<Response> {
+        try {
+            const id: number = parseInt(req.params.id);
+            const game = await this.gameService.remove(id);
+            return res.status(200).json({ message: `Game with ID ${id} deleted successfully.`, game });
+        } catch (error) {
+            return res.status(400).json({ message: 'Error deleting game.', error: error.message });
+        }
+    }
 }
+

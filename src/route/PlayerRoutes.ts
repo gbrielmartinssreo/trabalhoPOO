@@ -1,16 +1,17 @@
-import express, { Router, Request, Response } from "express";
-import { PlayerController } from "../controller/PlayerController";
+import express from 'express';
+import { PlayerController } from '../controller/PlayerController';
 
-const router: Router = express.Router();
+const playerRouter = express.Router();
 const playerController = new PlayerController();
 
-// Rota para criar um novo jogador
-router.post("/", playerController.create);
+playerRouter.get('/', (req, res) => { playerController.list(); });
+playerRouter.post('/', (req, res) => { playerController.create(req); });
+playerRouter.put('/:email', (req, res) => { playerController.update(req, res); });
+playerRouter.delete('/:email', (req, res) => { playerController.deletePlayer(req); });
 
-// Rota para buscar todos os jogadores
-router.get("/", playerController.findAll);
+// Rotas adicionais para gerenciar licenças do jogador
+playerRouter.post('/:email/licenses/:licenseId', (req, res) => { playerController.addLicenseToPlayer(req, res); });
+playerRouter.delete('/:email/licenses/:licenseId', (req, res) => { playerController.removeLicenseFromPlayer(req, res); });
 
-// Outras rotas para jogadores (se necessário)
-// ...
+export default playerRouter;
 
-export default router;

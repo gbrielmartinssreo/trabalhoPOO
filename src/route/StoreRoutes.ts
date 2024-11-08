@@ -1,16 +1,13 @@
-import express, { Router, Request, Response } from "express";
-import { StoreController } from "../controller/StoreController";
+import express from 'express';
+import { StoreController } from '../controller/StoreController';
 
-const router: Router = express.Router();
+const storeRouter = express.Router();
 const storeController = new StoreController();
 
-// Rota para criar uma nova loja
-router.post("/", storeController.create);
+storeRouter.get('/', (req, res) => { storeController.list(req, res); });
+storeRouter.post('/', (req, res) => { storeController.create(req, res); });
+storeRouter.put('/:id', (req, res) => { storeController.update(req, res); });
+storeRouter.delete('/:id', (req, res) => { storeController.delete(req, res); });
 
-// Rota para buscar todas as lojas
-router.get("/", storeController.findAll);
+export default storeRouter;
 
-// Outras rotas para lojas (se necessário)
-// ...
-
-export default router;
