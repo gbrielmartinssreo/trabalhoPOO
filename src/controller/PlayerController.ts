@@ -1,146 +1,94 @@
-import { PlayerRepository } from "../repository/PlayerRepository";
-import { Player } from "../entity/Player";
-import { GameRepository } from "../repository/GameRepository";
-import { LicenseRepository } from "../repository/LicenseRepository";
-import { License } from "../entity/License";
+import { Request, Response } from 'express';
+import { PlayerService } from '../service/PlayerService';
 
 export class PlayerController {
-  private playerRepository: PlayerRepository;
-  private gameRepository: GameRepository;
-  private licenseRepository: LicenseRepository;
+  private playerService: PlayerService;
 
   constructor() {
-    this.playerRepository = new PlayerRepository();
-    this.gameRepository = new GameRepository();
-    this.licenseRepository = new LicenseRepository();
+    this.playerService = new PlayerService();
   }
 
-  async create(player: Player): Promise<Player> {
-    return await this.playerRepository.create(player);
-  }
-
-  async list(): Promise<Player[]> {
-    return await this.playerRepository.list();
-  }
-
-  async obtain(email: string): Promise<Player | undefined> {
-    return await this.playerRepository.obtain(email);
-  }
-
-  async update(email: string, player: Partial<Player>): Promise<void> {
-        await this.playerRepository.update(email, player);
-    }
-
-  async research(player: Partial<Player>): Promise<Player | null> {
-    return await this.playerRepository.research(player);
-  }
-
-  async buyGame(email: string, gameId: number, storeId: number): Promise<boolean> {
+  async create(req: Request, res: Response): Promise<Response> {
     try {
-      const player = await this.playerRepository.obtain(email);
-      const game = await this.gameRepository.obtain(gameId);
-      const license = await this.licenseRepository.obtainByGameAndStore(gameId, storeId);
-
-      if (!player || !game || !license) {
-        console.error("Erro: Player, Game ou License não encontrados.");
-        return false;
-      }
-
-      if (player.licenses.some((lic) => lic.game.id === gameId)) {
-        console.error("O jogador já possui uma licença para este jogo.");
-        return false;
-      }
-
-      if (player.balance < license.price) {
-        console.error("Saldo insuficiente para comprar a licença.");
-        return false;
-      }
-
-      // Adiciona a licença ao jogador e atualiza o saldo
-      player.licenses.push(license);
-      player.balance -= license.price;
-
-      // Remove a licença da loja
-      await this.licenseRepository.remove(license);
-
-      // Atualiza o jogador
-      await this.playerRepository.update(email, player);
-
-      console.log("Compra realizada com sucesso.");
-      return true;
+      const player = req.body;
+      const newPlayer = await this.playerService.create(player);
+      return res.status(201).json(newPlayer);
     } catch (error) {
-      console.error('Erro ao processar a compra:', error);
-      return false;
+      return res.status(400).json({ message: 'Erro ao criar jogador.', error: error.message });
     }
   }
 
-  async addLicenseToPlayer(email: string, licenseId: number): Promise<boolean> {
+  async list(req: Request, res: Response): Promise<Response> {
     try {
-      const player = await this.playerRepository.obtain(email);
-      const license = await this.licenseRepository.obtain(licenseId);
-
-      if (!player || !license) {
-        console.error("Erro: Player ou License não encontrados.");
-        return false;
-      }
-
-      if (player.licenses.some((lic) => lic.id === licenseId)) {
-        console.error("O jogador já possui esta licença.");
-        return false;
-      }
-
-      player.licenses.push(license);
-      await this.playerRepository.update(email, player);
-
-      console.log("Licença adicionada ao jogador com sucesso.");
-      return true;
+      const players = await this.playerService.list();
+      return res.status(200).json(players);
     } catch (error) {
-      console.error("Erro ao adicionar licença:", error);
-      return false;
+      return res.status(500).json({ message: 'Erro ao listar jogadores.', error: error.message });
     }
   }
 
-  async removeLicenseFromPlayer(email: string, licenseId: number): Promise<boolean> {
+  async update(req: Request, res: Response): Promise<Response> {
     try {
-      const player = await this.playerRepository.obtain(email);
-      if (!player) {
-        console.error("Erro: Jogador não encontrado.");
-        return false;
-      }
-
-      const licenseIndex = player.licenses.findIndex((lic) => lic.id === licenseId);
-      if (licenseIndex === -1) {
-        console.error("Licença não encontrada no jogador.");
-        return false;
-      }
-
-      player.licenses.splice(licenseIndex, 1);
-      await this.playerRepository.update(email, player);
-
-      console.log("Licença removida do jogador com sucesso.");
-      return true;
+      const email = req.params.email;
+      const playerData = req.body;
+      await this.playerService.update(email, playerData);
+      return res.status(200).json({ message: `Jogador ${email} atualizado com sucesso.` });
     } catch (error) {
-      console.error("Erro ao remover licença:", error);
-      return false;
+      return res.status(400).json({ message: 'Erro ao atualizar jogador.', error: error.message });
     }
   }
 
-  async deletePlayer(email: string): Promise<boolean> {
+  async delete(req: Request, res: Response): Promise<Response> {
     try {
-      const player = await this.playerRepository.obtain(email);
-      if (!player) {
-        console.error("Erro: Jogador não encontrado.");
-        return false;
-      }
-
-      await this.playerRepository.remove(player);
-
-      console.log("Jogador removido com sucesso.");
-      return true;
+      const email = req.params.email;
+      await this.playerService.deletePlayer(email);
+      return res.status(200).json({ message: `Jogador ${email} deletado com sucesso.` });
     } catch (error) {
-      console.error("Erro ao remover jogador:", error);
-      return false;
+      return res.status(400).json({ message: 'Erro ao deletar jogador.', error: error.message });
+    }
+  }
+
+  async buyGame(req: Request, res: Response): Promise<Response> {
+    try {
+      const { email, gameId, storeId } = req.body;
+      const success = await this.playerService.buyGame(email, gameId, storeId);
+      if (success) return res.status(200).json({ message: 'Compra realizada com sucesso.' });
+      else return res.status(400).json({ message: 'Erro ao realizar a compra.' });
+    } catch (error) {
+      return res.status(400).json({ message: 'Erro ao comprar jogo.', error: error.message });
+    }
+  }
+
+  async research(req: Request, res: Response): Promise<Response> {
+    try {
+      const playerData = req.body;
+      const player = await this.playerService.research(playerData);
+      if (!player) return res.status(404).json({ message: 'Jogador não encontrado.' });
+      return res.status(200).json(player);
+    } catch (error) {
+      return res.status(500).json({ message: 'Erro na pesquisa de jogador.', error: error.message });
+    }
+  }
+
+  async addLicenseToPlayer(req: Request, res: Response): Promise<Response> {
+    try {
+      const { email, licenseId } = req.body;
+      const success = await this.playerService.addLicenseToPlayer(email, licenseId);
+      if (success) return res.status(200).json({ message: 'Licença adicionada ao jogador com sucesso.' });
+      else return res.status(400).json({ message: 'Erro ao adicionar licença ao jogador.' });
+    } catch (error) {
+      return res.status(400).json({ message: 'Erro ao adicionar licença.', error: error.message });
+    }
+  }
+
+  async removeLicenseFromPlayer(req: Request, res: Response): Promise<Response> {
+    try {
+      const { email, licenseId } = req.body;
+      const success = await this.playerService.removeLicenseFromPlayer(email, licenseId);
+      if (success) return res.status(200).json({ message: 'Licença removida do jogador com sucesso.' });
+      else return res.status(400).json({ message: 'Erro ao remover licença do jogador.' });
+    } catch (error) {
+      return res.status(400).json({ message: 'Erro ao remover licença.', error: error.message });
     }
   }
 }
-

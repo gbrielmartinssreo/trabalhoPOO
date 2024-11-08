@@ -30,7 +30,7 @@ export class License {
   @Column({ type: "decimal", precision: 10, scale: 2 })
   price: number;
 
-  @ManyToOne(() => Store, (store) => store.licenses)
+  @ManyToOne(() => Store, (store) => store.licenses, { cascade: ["remove"] })
   store: Store;
 
   @ManyToOne(() => Player, (player) => player.licenses)

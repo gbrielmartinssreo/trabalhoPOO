@@ -15,7 +15,7 @@ export class StoreController {
             const newStore = await this.storeService.create(store);
             return res.status(201).json(newStore);
         } catch (error) {
-            return res.status(400).json({ message: 'Error creating store.', error: error.message });
+            return res.status(400).json({ message: 'Erro na criacao da loja.', error: error.message });
         }
     }
 
@@ -24,7 +24,7 @@ export class StoreController {
             const stores = await this.storeService.list();
             return res.status(200).json(stores);
         } catch (error) {
-            return res.status(500).json({ message: 'Error listing stores.', error: error.message });
+            return res.status(500).json({ message: 'Erro na listagem de lojas.', error: error.message });
         }
     }
 
@@ -33,9 +33,9 @@ export class StoreController {
             const id = parseInt(req.params.id);
             const store: Partial<Store> = req.body;
             await this.storeService.update(id, store);
-            return res.status(200).json({ message: `Store with ID ${id} updated successfully.` });
+            return res.status(200).json({ message: `Loja com ID ${id} atualizada com sucesso.` });
         } catch (error) {
-            return res.status(400).json({ message: 'Error updating store.', error: error.message });
+            return res.status(400).json({ message: 'Erro ao atualizar loja.', error: error.message });
         }
     }
 
@@ -43,9 +43,9 @@ export class StoreController {
         try {
             const id: number = parseInt(req.params.id);
             const store = await this.storeService.remove(id);
-            return res.status(200).json({ message: `Store with ID ${id} deleted successfully.`, store });
+            return res.status(200).json({ message: `Loja com ID ${id} deletada com sucesso.`, store });
         } catch (error) {
-            return res.status(400).json({ message: 'Error deleting store.', error: error.message });
+            return res.status(400).json({ message: 'Erro ao deletar loja.', error: error.message });
         }
     }
 }

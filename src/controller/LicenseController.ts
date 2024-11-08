@@ -15,7 +15,7 @@ export class LicenseController {
             const newLicense = await this.licenseService.create(license);
             return res.status(201).json(newLicense);
         } catch (error) {
-            return res.status(400).json({ message: 'Error creating license.', error: error.message });
+            return res.status(400).json({ message: 'Erro na criacao de licenca.', error: error.message });
         }
     }
 
@@ -24,7 +24,7 @@ export class LicenseController {
             const licenses = await this.licenseService.list();
             return res.status(200).json(licenses);
         } catch (error) {
-            return res.status(500).json({ message: 'Error listing licenses.', error: error.message });
+            return res.status(500).json({ message: 'Erro na listagem de licencas.', error: error.message });
         }
     }
 
@@ -33,9 +33,9 @@ export class LicenseController {
             const id = parseInt(req.params.id);
             const license: Partial<License> = req.body;
             await this.licenseService.update(id, license);
-            return res.status(200).json({ message: `License with ID ${id} updated successfully.` });
+            return res.status(200).json({ message: `Licenca com ID ${id} atualizada com sucesso.` });
         } catch (error) {
-            return res.status(400).json({ message: 'Error updating license.', error: error.message });
+            return res.status(400).json({ message: 'Erro ao atualizar licenca.', error: error.message });
         }
     }
 
@@ -43,9 +43,9 @@ export class LicenseController {
         try {
             const id: number = parseInt(req.params.id);
             const license = await this.licenseService.remove(id);
-            return res.status(200).json({ message: `License with ID ${id} deleted successfully.`, license });
+            return res.status(200).json({ message: `Licenca com ID ${id} deletada com sucesso.`, license });
         } catch (error) {
-            return res.status(400).json({ message: 'Error deleting license.', error: error.message });
+            return res.status(400).json({ message: 'Erro ao deletar licenca.', error: error.message });
         }
     }
 }

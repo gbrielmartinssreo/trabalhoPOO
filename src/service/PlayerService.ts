@@ -31,13 +31,21 @@ export class PlayerService {
     return await this.playerRepository.research(player);
   }
 
+  async update(email: string, player: Partial<Player>): Promise<void> {
+    try {
+      await this.playerRepository.update(email, player);
+    } catch (error) {
+      console.error("Erro ao atualizar jogador:", error);
+    }
+  }
+
   async buyGame(email: string, gameId: number, storeId: number): Promise<boolean> {
     try {
       const player = await this.playerRepository.obtain(email);
       const game = await this.gameRepository.obtain(gameId);
       const license = await this.licenseRepository.obtainByGameAndStore(gameId, storeId);
 
-      if (!player || !game || !license) {
+      if ((!player) || (!game) || (!license)) {
         console.error("Erro: Player, Game ou License não encontrados.");
         return false;
       }
@@ -52,14 +60,14 @@ export class PlayerService {
         return false;
       }
 
-      // Adiciona a licença ao jogador e atualiza o saldo
+      // aqui eh pra adicionar a licença pro jogador e atualizar o saldo
       player.licenses.push(license);
       player.balance -= license.price;
 
-      // Remove a licença da loja
+      // ele remove a licença da loja por conta do cascade
       await this.licenseRepository.remove(license);
 
-      // Atualiza o jogador
+      // atualiza o jogador
       await this.playerRepository.update(email, player);
 
       console.log("Compra realizada com sucesso.");
@@ -70,6 +78,7 @@ export class PlayerService {
     }
   }
 
+  //isso aq eh pra quando eu quero adicionar na marra, sem comprar
   async addLicenseToPlayer(email: string, licenseId: number): Promise<boolean> {
     try {
       const player = await this.playerRepository.obtain(email);
@@ -96,6 +105,7 @@ export class PlayerService {
     }
   }
 
+  //essa eh pra remover licenca do jogador, mais pra fins de ver no que da
   async removeLicenseFromPlayer(email: string, licenseId: number): Promise<boolean> {
     try {
       const player = await this.playerRepository.obtain(email);
@@ -120,6 +130,7 @@ export class PlayerService {
       return false;
     }
   }
+
 
   async deletePlayer(email: string): Promise<boolean> {
     try {

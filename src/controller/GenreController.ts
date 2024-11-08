@@ -15,7 +15,7 @@ export class GenreController {
             const newGenre = await this.genreService.create(genre);
             return res.status(201).json(newGenre);
         } catch (error) {
-            return res.status(400).json({ message: 'Error creating genre.', error: error.message });
+            return res.status(400).json({ message: 'Erro na criacao de genero.', error: error.message });
         }
     }
 
@@ -24,7 +24,7 @@ export class GenreController {
             const genres = await this.genreService.list();
             return res.status(200).json(genres);
         } catch (error) {
-            return res.status(500).json({ message: 'Error listing genres.', error: error.message });
+            return res.status(500).json({ message: 'Erro na listagem de generos.', error: error.message });
         }
     }
 
@@ -33,9 +33,9 @@ export class GenreController {
             const id = parseInt(req.params.id);
             const genre: Partial<Genre> = req.body;
             await this.genreService.update(id, genre);
-            return res.status(200).json({ message: `Genre with ID ${id} updated successfully.` });
+            return res.status(200).json({ message: `Genero com ${id} atualizado com sucesso.` });
         } catch (error) {
-            return res.status(400).json({ message: 'Error updating genre.', error: error.message });
+            return res.status(400).json({ message: 'Erro ao atualizar genero.', error: error.message });
         }
     }
 
@@ -43,9 +43,9 @@ export class GenreController {
         try {
             const id: number = parseInt(req.params.id);
             const genre = await this.genreService.remove(id);
-            return res.status(200).json({ message: `Genre with ID ${id} deleted successfully.`, genre });
+            return res.status(200).json({ message: `Genero com ID ${id} deletado com sucesso.`, genre });
         } catch (error) {
-            return res.status(400).json({ message: 'Error deleting genre.', error: error.message });
+            return res.status(400).json({ message: 'Erro ao deletar genero.', error: error.message });
         }
     }
 }
