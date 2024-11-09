@@ -36,11 +36,4 @@ export class Game {
   @OneToMany(() =>  License, (license) => license.game, { cascade: ["remove"] })
   licenses: License[];
 
-  constructor(name?:string, score?:string, developer?:string, genres?:Genre[], licenses?:License[]) {
-    this.name = name;
-    this.score = score;
-    this.developer = developer;
-    this.genres = genres;
-    this.licenses = licenses;
-  }
 }
