@@ -19,12 +19,5 @@ export class Player {
   @OneToMany(() => License, (license) => license.player, { cascade: ["remove"] })   
   licenses: License[];
 
-  constructor(email?: string, name?: string, password?: string, balance?: number, licenses?:License[]) {
-    this.email = email;
-    this.name = name;
-    this.password = password;
-    this.balance = balance || 0;
-    this.licenses = licenses;
-  }
 }
 

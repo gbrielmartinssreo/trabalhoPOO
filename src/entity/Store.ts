@@ -30,8 +30,4 @@ export class Store {
   @OneToMany(()=> License, (license) => license.store)
   licenses: License[];
 
-  constructor(name?:string, licenses?:License[]) {
-    this.name = name;
-    this.licenses = licenses;
-  }
 }

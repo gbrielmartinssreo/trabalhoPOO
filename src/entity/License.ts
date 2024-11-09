@@ -1,4 +1,5 @@
 /*
+ * dsdsd
  * primeiramente, acho importante explicar um pouco de pq licenca, eh pq quando compramos um jogo, na steam por exemplo
  * estamos adquirindo uma licenca, nao o jogo em si, palavras da propria empresa valve, embora a afirmacao sempre fosse verdade,
  * muita gente nao sabia
@@ -36,10 +37,4 @@ export class License {
   @ManyToOne(() => Player, (player) => player.licenses)
   player:Player;
 
-  constructor(game?:Game, price?:number, store?:Store, player?:Player){
-    this.game=game;
-    this.price=price;
-    this.store=store;
-    this.player=player;
-  }
 }

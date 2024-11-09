@@ -17,7 +17,4 @@ export class Genre {
   @ManyToOne(() => Game, (game) => game.genres)
   game:Game;
 
-  constructor(name?: string) {
-    this.name = name;
-  }
 }

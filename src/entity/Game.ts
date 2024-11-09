@@ -4,7 +4,6 @@
  * -nome do jogo, 
  * -classificacao de quao bom ele eh, 
  * -os generos que ele cobre, 
- * -as lojas em que ele eh vendido,
  * -as licencas em posse dos jogadores, 
  * -a desenvolvedora e claro, 
  * -a sua chave sintetica ja que nao consegui pensar em um atributo muito unico pra um jogo que nao seja um id 
@@ -20,13 +19,13 @@ export class Game {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({nullable:true})
   name: string;
 
-  @Column()
+  @Column({nullable:true})
   score: string;
 
-  @Column()
+  @Column({nullable:true})
   developer: string;
 
   //aqui eu to falando que um jogo pode ter varios generos, em genre eu vo fazer uma gambiarra pra genero nao ter game

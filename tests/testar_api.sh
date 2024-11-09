@@ -8,10 +8,10 @@ choose_from_list() {
         if [[ $item != "Cancelar" && -n $item ]]; then
             echo "Você escolheu: $item"
             echo $item
-            break
+            return 0
         else
             echo "Opção cancelada ou inválida."
-            break
+            return 1
         fi
     done
 }
@@ -102,7 +102,7 @@ delete_genre() {
 
 # Função para associar gêneros a um jogo
 associate_genres_to_game() {
-    games=$(curl -X GET http://localhost:3000/games -H "Content-Type: application/json" | jq -r '.[].title')
+    games=$(curl -X GET http://localhost:3000/games -H "Content-Type: application/json" | jq -r '.[].name')
     games_list=($games)
 
     genres=$(curl -X GET http://localhost:3000/genres -H "Content-Type: application/json" | jq -r '.[].name')
@@ -111,14 +111,14 @@ associate_genres_to_game() {
     echo "Escolha um Jogo:"
     game=$(choose_from_list "${games_list[@]}")
     if [ "$game" == "Cancelar" ]; then
-        return
+        return 1
     fi
 
     echo "Escolha um ou mais Gêneros (separados por espaço):"
     read -p "Gêneros: " genres_selection
     if [ -z "$genres_selection" ]; then
         echo "Nenhum gênero selecionado. Abortando."
-        return
+        return 1
     fi
 
     curl -X POST http://localhost:3000/games/$game/genres \
@@ -167,13 +167,13 @@ add_licenses_to_store() {
     echo "Escolha uma Loja:"
     store=$(choose_from_list "${stores_list[@]}")
     if [ "$store" == "Cancelar" ]; then
-        return
+        return 1
     fi
 
     echo "Escolha uma Licença:"
     license=$(choose_from_list "${licenses_list[@]}")
     if [ "$license" == "Cancelar" ]; then
-        return
+        return 1
     fi
 
     curl -X POST http://localhost:3000/stores/$store/licenses/$license \
@@ -182,10 +182,12 @@ add_licenses_to_store() {
 
 # Função para criar um jogo
 create_game() {
-    read -p "Título do Jogo: " title
+    read -p "Nome do Jogo: " name
+    read -p "Pontuação do Jogo: " score  # Solicita a pontuação do jogo
+    read -p "Desenvolvedor do Jogo: " developer  # Solicita o desenvolvedor do jogo
     curl -X POST http://localhost:3000/games \
     -H "Content-Type: application/json" \
-    -d '{"title": "'"$title"'"}'
+    -d '{"name": "'"$name"'", "score": "'"$score"'", "developer": "'"$developer"'"}'  # Envia todos os atributos
 }
 
 # Função para listar jogos
@@ -196,10 +198,10 @@ list_games() {
 # Função para atualizar um jogo
 update_game() {
     read -p "ID do Jogo: " gameId
-    read -p "Novo Título do Jogo: " title
+    read -p "Novo Nome do Jogo: " name
     curl -X PUT http://localhost:3000/games/$gameId \
     -H "Content-Type: application/json" \
-    -d '{"title": "'"$title"'"}'
+    -d '{"name": "'"$name"'"}'
 }
 
 # Função para deletar um jogo
@@ -302,4 +304,3 @@ while true; do
         *) echo "Opção inválida!" ;;
     esac
 done
-
